@@ -1,7 +1,7 @@
 import RPi.GPIO as gpio
 
-svet = 6
-knopke = 13
+svet   = 6
+knopka = 13
 out     = 26
 
 
@@ -10,4 +10,4 @@ gpio.setup(svet, gpio.IN)
 gpio.setup(out, gpio.OUT)
 
 while 1:
-    gpio.output(out,gpio.input(svet))
+    gpio.output(out, gpio.input(svet))
