@@ -1,0 +1,72 @@
+import RPi.GPIO as gpio
+
+dinamic_range  = 3.3
+
+dac_bits = [16,20,21,25,26,17,27,22][::-1]
+
+gpio.setmode(gpio.BCM)
+
+gpio.setup(dac_bits, gpio.OUT)
+
+class R2R_DAC():
+    def __init__(self, gpio_bits, pwm_frequency, dynamic_range, verbose = False):
+        self.gpio_bits = gpio_bits
+        self.dynamic_range = dynamic_range
+        self.verbose = verbose
+        self.pwm_frequency = pwm_frequency
+
+        gpio.setmode(gpio.BCM)
+
+        gpio.setup(self.gpio_bits, gpio.OUT)
+
+    def voltage_to_num(self, U):
+        if not (0.0 <= U <= self.dynamic_range):
+            print(f"Напряжение выходит за заданный диапазон ЦАП (0.00 - {dinamic_range:.2f})D\n" + 
+                    "Устанавливаем 0 В")
+            return 0
+        return int(U / self.dynamic_range * 255 + 0.5)
+
+    def lights(self, num):
+        for out in self.gpio_bits:
+            gpio.output(out,num % 2)
+            num //= 2
+        return
+    
+    def put_U(self, U):
+        U_num = self.voltage_to_num(U)
+        self.lights(U_num)
+
+if __name__ == "__main__":
+    try:
+        dac = R2R_DAC(dac_bits, dinamic_range, True)
+        while 1:
+            try:
+                U = float(input("Введите напряжение в Вольиах:"))
+                dac.put_U(U)
+            except ValueError:
+                print("это не число")
+    finally:
+        gpio.output(dac_bits,0)
+        gpio.cleanup()
+
+    
+gpio.setmode(gpio.BCM)
+gpio.setup(knopka, gpio.IN)
+gpio.setup(out, gpio.OUT)
+
+while 1:
+    if (gpio.input(knopka)):
+        need_light = 1 - need_light
+        gpio.output(out, need_light)
+        #time.sleep(0.2)
+        while (gpio.input(knopka)): None
+
+pwm  = gpio.PWM(out, 200)
+duty = 0.0
+pwm.start(0)
+
+
+while 1:
+    pwm.ChangeDutyCycle(duty)
+    duty = duty / 3.3 * 100
+    time.sleep(0.05)
