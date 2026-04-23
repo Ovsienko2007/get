@@ -1,4 +1,5 @@
 import RPi.GPIO as gpio
+import time
 
 dinamic_range  = 3.192
 
@@ -7,6 +8,20 @@ dac_bits = [16,20,21,25,26,17,27,22][::-1]
 gpio.setmode(gpio.BCM)
 
 gpio.setup(dac_bits, gpio.OUT)
+
+def func(freq):
+    U = 0
+    while 1:
+        if (U < 1 / freq):
+            is_up = True
+        if (U > 1 - 1 / freq):
+            is_up = False
+
+        if is_up:
+            U += 1 / freq
+        else:
+            U -= 1 / freq
+        yield U
 
 class R2R_DAC():
     def __init__(self, gpio_bits, dynamic_range, verbose = False):
@@ -38,12 +53,19 @@ class R2R_DAC():
 if __name__ == "__main__":
     try:
         dac = R2R_DAC(dac_bits, dinamic_range, True)
+        sig_freq = 10
+        sampl_freq = 100
+        max_U = 3
+        t = 0
+        gen_U = func(sampl_freq)
+
         while 1:
-            try:
-                U = float(input("Введите напряжение в Вольиах:"))
-                dac.put_U(U)
-            except ValueError:
-                print("это не число")
+            U = max_U * next(gen_U)
+            dac.put_U(U)
+
+            time.sleep(1 / sig_freq)
+
     finally:
         gpio.output(dac_bits,0)
         gpio.cleanup()
+

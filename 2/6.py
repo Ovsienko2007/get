@@ -1,4 +1,6 @@
 import RPi.GPIO as gpio
+import time
+import math
 
 dinamic_range  = 3.305
 
@@ -33,11 +35,17 @@ class R2R_DAC():
 if __name__ == "__main__":
     try:
         dac = R2R_DAC(12, 500, dinamic_range, True)
+        sig_freq = 10
+        sampl_freq = 1000
+        max_U = dinamic_range
+        t = 0
+
         while 1:
-            try:
-                U = float(input("Введите напряжение в Вольтах:"))
-                dac.put_U(U)
-            except ValueError:
-                print("это не число")
+            U = max_U * (1 + math.sin(2 * 3.1415926535 / sampl_freq * t)) / 2
+            dac.put_U(U)
+
+            time.sleep(1 / sig_freq)
+            t += 10
+
     finally:
         dac.deinit()
