@@ -11,7 +11,7 @@ class R2R_DAC():
     def __init__(self, dynamic_range, comporator_time, verbose = False):
         self.gpio_bits = [26,20,19,16,13,12,25,11][::-1]
         self.comp_gpio = 21
-        self.arr = dict()
+        self.arr = []
 
         self.comporator_time = comporator_time
         self.dynamic_range   = dynamic_range
@@ -51,7 +51,7 @@ class R2R_DAC():
                 num -= del_num
                 del_num //= 2
 
-        self.arr[timer] = self.arr.get(timer,0)+1
+        self.arr.append(timer)
         return timer
     
     def destroy(self):
@@ -67,8 +67,13 @@ class R2R_DAC():
 
         plt.figure(figsize=(10,6))
 
-        plt.hist(self.arr, linewidth = 0.5)
+        plt.hist(self.arr, rwidth = 0.1)
 
+        plt.xlim(0,0.06)
+
+        plt.xticks([i/100 for i in range(0,60,2)], rotation = 90)
+
+        self.destroy()
         plt.show()
 
 check_U = R2R_DAC(dynamic_range, 0.1)

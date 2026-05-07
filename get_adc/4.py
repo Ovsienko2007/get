@@ -45,8 +45,8 @@ class R2R_DAC():
         for i in range (8):
             self.lights(num)
 
-            time.sleep(0.01)
-            timer += 0.01
+            time.sleep(0.02)
+            timer += 0.02
 
             if gpio.input(self.comp_gpio):
                 num -= del_num
@@ -71,6 +71,7 @@ class R2R_DAC():
 
         plt.figure(figsize=(10,6))
         plt.plot(self.time_arr[1:], self.vlt_arr[1:])
+        plt.xlim(0,0.06)
 
         plt.show()
 
